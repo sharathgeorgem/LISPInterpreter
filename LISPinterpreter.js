@@ -68,10 +68,10 @@ function parseAndEval (data, context) {
       // check for data begins with variable
       if (/^[A-Za-z]+/.exec(data)) {
         let varName = /^[A-Za-z]+/.exec(data)[0]
-        let replaceName
         // Check with context
-        if (varName in context.scope) replaceName = context.get(varName)
-        else if (varName in context.parent) replaceName = context.get(varName)
+        // if (varName in context.scope) replaceName = context.get(varName)
+        // else if (varName in context.parent) replaceName = context.get(varName)
+        let replaceName = context.get(varName)
         data = data.replace(varName, replaceName)
         console.log(data)
       }
@@ -121,12 +121,11 @@ var environment = {
     })
   },
   'pi': 3.14,
-  'r': 100,
-  'circle-area': (parameter) => {
-    let localScope = Object.create(null)
+  'circle-area': (parameter, context) => {
+    console.log(context)
+    var localScope = Object.create(null)
     localScope['r'] = parameter
-    console.log(localScope)
-    return parseAndEval('(* pi(* r r))', localScope)
+    return parseAndEval('(* pi(* r r))', new Context(localScope, new Context(environment)))
   }
 }
 // Context constructor
@@ -147,10 +146,10 @@ function parseNumber (data) {
   if (num) return [Number(num[0]), data.slice(num[0].length)]
   return null
 }
-// Remove space
+// Delete space
 function clearSpace (data) {
   let first = data.search(/\S/)
   if (first === -1) return ''
   return data.slice(first)
 }
-console.log(parseAndEval('(* pi r)'))
+console.log(parseAndEval('(circle-area 10)'))
